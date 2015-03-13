@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/IOIO-Solar-Tracker.iml" filepath="$PROJECT_DIR$/IOIO-Solar-Tracker.iml" />
+      <module fileurl="file://$PROJECT_DIR$/App-IOIO0504/IOIOLib/target/pc/IOIOLibPC.iml" filepath="$PROJECT_DIR$/App-IOIO0504/IOIOLib/target/pc/IOIOLibPC.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Sun Position Algorithm/Sun Position Algorithm.iml" filepath="$PROJECT_DIR$/Sun Position Algorithm/Sun Position Algorithm.iml" />
+    </modules>
+  </component>
+</project>
