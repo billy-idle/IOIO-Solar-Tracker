@@ -3,7 +3,7 @@
   <component name="EclipseModuleManager">
     <libelement value="jar://$MODULE_DIR$/lib/jna-4.0.0.jar!/" />
     <libelement value="jar://$MODULE_DIR$/lib/purejavacomm-0.0.21.jar!/" />
-    <varelement var="file://$$%7BIOIOLIB%7D$/src" kind="linksrc:" value="src_common" />
+    <varelement var="file://$$%7BIOIOLIB%7D$/src" value="linksrc:src_common" />
     <src_description expected_position="0">
       <src_folder value="file://$$%7BIOIOLIB%7D$/src" expected_position="0" />
       <src_folder value="file://$MODULE_DIR$/src" expected_position="1" />

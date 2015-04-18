@@ -4,30 +4,35 @@ import ioio.lib.api.AnalogInput;
 import ioio.lib.api.exception.ConnectionLostException;
 
 /**
- * @version 1, 7/03/14
+ * This class allows a IOIO board behaves like a voltmeter.
+ *
  * @author Guillermo Guzm&aacute;n S&aacute;nchez
+ * @version 1, 18/04/2015
  */
-public class IOIO_VMeter {
+public class IOIOVoltmeter {
     private final AnalogInput analogInput;
     private final double fromLow;
     private final double fromHigh;
     private final double toLow;
     private final double toHigh;
-    private Method method;
-    private Sample sample;
+    private final Method method;
+    private final Sample sample;
 
     /**
      * Class constructor.
      *
-     * @param method
-     * @param sample
-     * @param analogInput
-     * @param fromLow
-     * @param fromHigh
-     * @param toLow
-     * @param toHigh
+     * @param method      Enum type, average method or Chauvenet method.
+     * @param sample      Enum type. Allow values are TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, FIFTEEN, TWENTY,
+     *                    TWENTYFIVE, THIRTY, FORTY, FIFTY, ONEHUNDRED, THREEHUNDRED, FIVEHUNDRED, ONETHOUSAND.
+     * @param analogInput A pin use for analog input.
+     * @param fromLow     The lower bound of the value's current range.
+     * @param fromHigh    The upper bound of the value's current range.
+     * @param toLow       The lower bound of the value's target range.
+     * @param toHigh      The upper bound of the value's target range.
+     * @see IOIOVoltmeter.Sample
+     * @see AnalogInput
      */
-    public IOIO_VMeter(Method method, Sample sample, AnalogInput analogInput, double fromLow, double fromHigh, double toLow, double toHigh) {
+    public IOIOVoltmeter(Method method, Sample sample, AnalogInput analogInput, double fromLow, double fromHigh, double toLow, double toHigh) {
         this.method = method;
         this.sample = sample;
         this.analogInput = analogInput;
@@ -38,35 +43,35 @@ public class IOIO_VMeter {
     }
 
     /**
-     *
-     * @return
+     * @return The re-mapped value of the voltage.
      * @throws ConnectionLostException
      * @throws InterruptedException
      */
     public double getVolts() throws ConnectionLostException, InterruptedException {
         switch (method) {
             case AVERAGE:
-                return averageMethod(sample.getSample());
+                return averageMethod(sample);
             case CHAUVENET:
-                return chauvenetMethod(sample.getSample(), sample.getCoefficient());
+                return chauvenetMethod(sample);
             default:
                 return 8888.0; // It never happens!
         }
     }
 
     /**
+     * Gets the mapped value of the voltage, using the average method..
      *
-     * @param sample
-     * @return
+     * @param sample The amount of samples.
+     * @return The re-mapped value of the voltage.
      * @throws ConnectionLostException
      * @throws InterruptedException
      */
-    private double averageMethod(int sample) throws ConnectionLostException, InterruptedException {
+    private double averageMethod(Sample sample) throws ConnectionLostException, InterruptedException {
         double total = 0;
         double volts;
         double value;
 
-        for (int i = 0; i < sample; i++) {
+        for (int i = 0; i < sample.getSample(); i++) {
             total += analogInput.getVoltageBuffered(); // Read analog input _pin
         }
 
@@ -74,31 +79,32 @@ public class IOIO_VMeter {
             return 0;
         }
 
-        volts = total / sample; // Compute the average sample
+        volts = total / sample.getSample(); // Compute the average sample
         value = map(volts, fromLow, fromHigh, toLow, toHigh); // For example: Scales volts from 2400mV-5000mV to amperes 0mA-500mA
 
         return value;
     }
 
     /**
+     * Gets the mapped value of the voltage, using the Chauvenet's rejection criteria.
      *
-     * @param sample
-     * @param coefficient
-     * @return
+     * @param sample The amount of samples.
+     * @return The re-mapped value of the voltage.
      * @throws ConnectionLostException
      * @throws InterruptedException
+     * @see IOIOVoltmeter.Sample
      */
-    private double chauvenetMethod(int sample, double coefficient) throws ConnectionLostException, InterruptedException {
+    private double chauvenetMethod(Sample sample) throws ConnectionLostException, InterruptedException {
         double total = 0.0;
         double value;
-        double[] storage = new double[sample];
+        double[] storage = new double[sample.getSample()];
         double reading;
         double average;
         double stdDeviation;
         double ks;
         double Exi2 = 0.0;
 
-        for (int i = 0; i < sample; i++) {
+        for (int i = 0; i < sample.getSample(); i++) {
             reading = analogInput.getVoltageBuffered(); // Read analog input pin.
             total += reading; // Add the reading to the total.
             Exi2 += Math.pow(reading, 2); // Compute Exi2 (E -> Summation)
@@ -109,13 +115,13 @@ public class IOIO_VMeter {
             return 0.0;
         }
 
-        average = total / sample; // Compute the average value.
-        stdDeviation = Math.sqrt(Exi2 / sample - Math.pow(average, 2)); // Compute the standard deviation.
-        ks = coefficient * stdDeviation; // compute ks
+        average = total / sample.getSample(); // Compute the average value.
+        stdDeviation = Math.sqrt(Exi2 / sample.getSample() - Math.pow(average, 2)); // Compute the standard deviation.
+        ks = sample.getCoefficient() * stdDeviation; // compute ks
         total = 0.0;
         int counter = 0;
 
-        for (int i = 0; i < sample; i++) {
+        for (int i = 0; i < sample.getSample(); i++) {
             if ((storage[i] - average) < ks) {
                 total += storage[i];
                 counter++;
@@ -133,25 +139,30 @@ public class IOIO_VMeter {
     }
 
     /**
+     * Re-maps a number from one range to another. Does not constrain values to within the range.
      *
-     * @param value
-     * @param fromLow
-     * @param fromHigh
-     * @param toLow
-     * @param toHigh
-     * @return
+     * @param value    The number to map.
+     * @param fromLow  The lower bound of the value's current range.
+     * @param fromHigh The upper bound of the value's current range.
+     * @param toLow    The lower bound of the value's target range.
+     * @param toHigh   The upper bound of the value's target range.
+     * @return The mapped value.
      */
     private double map(double value, double fromLow, double fromHigh, double toLow, double toHigh) {
         return (value - fromLow) * (toHigh - toLow) / (fromHigh - fromLow) + toLow;
     }
 
     /**
-     *
+     * Average method or Chauvenet's method.
      */
-    public enum Method {AVERAGE, CHAUVENET}
+    public enum Method {
+        AVERAGE, CHAUVENET
+    }
 
     /**
+     * This enum type represents the concepts illustrated in the document "Metrología estadística".
      *
+     * @see <a href="http://www.metrologiaindust.com.ar/Servicios/Capacitacion/Curso2/Material/Diapositivas/1-%20Metrologia%20Estadistica.pdf">Metrología estadística</a>
      */
     public enum Sample {
         TWO(2, 1.15),
@@ -178,26 +189,23 @@ public class IOIO_VMeter {
         private final double coefficient;
 
         /**
-         *
-         * @param value
-         * @param coefficient
+         * @param value The amount of samples.
+         * @param coefficient The Chauvenet's coefficient.
          */
-        private Sample(int value, double coefficient) {
+        Sample(int value, double coefficient) {
             this.sample = value;
             this.coefficient = coefficient;
         }
 
         /**
-         *
-         * @return
+         * @return The amount of samples.
          */
         public int getSample() {
             return sample;
         }
 
         /**
-         *
-         * @return
+         * @return The Chauvenet's coefficient.
          */
         public double getCoefficient() {
             return coefficient;

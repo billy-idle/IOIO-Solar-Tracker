@@ -7,6 +7,9 @@ import ioio.lib.api.exception.ConnectionLostException;
 /**
  * This class is based on SFE_BMP180 library for arduino, designed by Mike Grusin, SparkFun Electronics.
  *
+ *<a href="http://www.didacticaselectronicas.com/index.php?page=shop.product_details&flypage=flypage.tpl&product_id=
+ * 2156&category_id=43&keyword=bmp180&option=com_virtuemart&Itemid=133">BMP180 Sensor</a>
+ *
  * @version 1, 7/03/14
  * @author Guillermo Guzm&aacute;n S&aacute;nchez
  */
@@ -49,9 +52,10 @@ public final class BMP180 {
     /**
      * Class constructor.
      *
-     * @param twi
+     * @param twi TwiMaster object.
      * @throws ConnectionLostException
      * @throws InterruptedException
+     * @see TwiMaster
      */
     public BMP180(TwiMaster twi) throws ConnectionLostException, InterruptedException {
         this.twi = twi;
@@ -237,7 +241,7 @@ public final class BMP180 {
 
     /**
      *
-     * @param temperature
+     * @param temperature temperature in Celsius degrees.
      * @param oversampling
      * @return Returns the absolute pressure measurement from previous startPressure method.
      * @throws ConnectionLostException
@@ -264,8 +268,8 @@ public final class BMP180 {
     /**
      * Converts the absolute pressure to sea-level pressure (as used in weather data)
      *
-     * @param pressure
-     * @param altitude
+     * @param pressure Pressure in mb.
+     * @param altitude Altitude in meters.
      * @return Returns sea-level pressure in millibar.
      */
     public double seaLevel(double pressure, double altitude) {
@@ -275,8 +279,8 @@ public final class BMP180 {
     /**
      * Converts the absolute pressure to altitude (given baseline pressure; sea-level, runway, etc.)
      *
-     * @param pressure
-     * @param pressureAtABaseline
+     * @param pressure Pressure in mb.
+     * @param pressureAtABaseline Sea-Level pressure in mb.
      * @return Returns signed altitude in meters.
      */
     public double altitude(double pressure, double pressureAtABaseline) {
@@ -301,7 +305,7 @@ public final class BMP180 {
      * @throws ConnectionLostException
      * @throws InterruptedException
      */
-    boolean readUInt(byte[] request) throws ConnectionLostException, InterruptedException {
+    private boolean readUInt(byte[] request) throws ConnectionLostException, InterruptedException {
         return twi.writeRead(BMP180_ADDRESS, SEVEN_BIT_ADDRESS, request, request.length, null, 0);
     }
 
@@ -373,7 +377,7 @@ public final class BMP180 {
     /**
      * Converts from millibars to atmospheres.
      *
-     * @param pressure
+     * @param pressure Pressure in mb.
      * @return Returns the pressure's measurement in atm.
      */
     public double mbToAtm(double pressure) {

@@ -8,6 +8,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="IOIOLibPC" />
-    <orderEntry type="module" module-name="Sun Position Algorithm" />
+    <orderEntry type="module" module-name="Sun-Position-Algorithm" />
   </component>
 </module>

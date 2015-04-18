@@ -1,18 +1,12 @@
 package com.starla.tracker;
 
-/**
- * @version 1, 7/03/14
- * @author Guillermo Guzm&aacute;n S&aacute;nchez
- */
-
-
-import com.starla.*;
 import com.starla.motor.Pan;
 import com.starla.motor.Tilt;
 import com.starla.sensor.ammeter.ACS712;
 import com.starla.sensor.uv.GUVA_S12SD;
-import com.starla.sensor.voltmeter.IOIO_VMeter;
+import com.starla.sensor.voltmeter.IOIOVoltmeter;
 import com.starla.sensor.weather.BMP180;
+import com.starla.sunposition.*;
 import ioio.lib.api.*;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.BaseIOIOLooper;
@@ -23,7 +17,10 @@ import java.io.IOException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-
+/**
+ * @version 1, 17/04/2015
+ * @author Guillermo Guzm&aacute;n S&aacute;nchez
+ */
 public final class Tracker extends IOIOConsoleApp {
     // parameters related with the bmp_180 (pressure and temperature) sensor
     private final int TWI_MODULE = 2;
@@ -33,7 +30,7 @@ public final class Tracker extends IOIOConsoleApp {
     // parameters related with the IOIO-based voltmeterSolarPanel
     private final int VOLTMETER_SP_PIN = 33;
     private final int VOLTMETER_BA_PIN = 38;
-    private final int VOLTMETER_UV_PIN = 34; // GUVA_S12SD (uv) sensor
+    private final int VOLTMETER_UV_PIN = 34; // GUVA_S12SD Sensor
     // parameters related with the servomotors
     private final int SERVO_PWM_FREQUENCY = 100;
     private final int SERVO_PAN_PIN = 10;
@@ -47,7 +44,7 @@ public final class Tracker extends IOIOConsoleApp {
     private boolean ledOn_ = true;
     private TwiMaster twi;
 
-    private final int BUFFER_SIZE = 100000;
+    private final int BUFFER_SIZE = 1000;
     private AnalogInput analogInputAmmeterSP;
     private AnalogInput analogInputAmmeterBA;
 
@@ -58,8 +55,8 @@ public final class Tracker extends IOIOConsoleApp {
     private ACS712 ammeterSolarPanel;
     private ACS712 ammeterBattery;
     private GUVA_S12SD uvaSensor;
-    private IOIO_VMeter voltmeterSolarPanel;
-    private IOIO_VMeter voltmeterBattery;
+    private IOIOVoltmeter voltmeterSolarPanel;
+    private IOIOVoltmeter voltmeterBattery;
     private BMP180 pressureTemperatureSensor;
     private PwmOutput panPwmOutput;
     private PwmOutput tiltPwmOutput;
@@ -81,19 +78,14 @@ public final class Tracker extends IOIOConsoleApp {
     private double uvaPower;
 
     private SunPosition sunPosition;
-    private ZonedDateTime zonedDateTime;
+    private Time time;
+    private Location location;
     private double zenith;
     private double azimuth;
-    private double elevation;
 
     // Boilerplate tracker(). Copy-paste this code into any IOIO application.
     public static void main(String[] args) throws Exception {
         new Tracker().go(args);
-    }
-
-    public static double toDegrees(double angle){
-        double decimals = 100.0;
-        return Math.round(Math.toDegrees(angle)*decimals)/decimals;
     }
 
     @Override
@@ -114,23 +106,23 @@ public final class Tracker extends IOIOConsoleApp {
 
                 analogInputAmmeterSP = ioio_.openAnalogInput(AMMETER_SP_PIN);
                 analogInputAmmeterSP.setBuffer(BUFFER_SIZE);
-                ammeterSolarPanel = new ACS712(ACS712.Method.CHAUVENET, ACS712.Sample.ONETHOUSAND, analogInputAmmeterSP, 2.5, 3.3, 0, 0.540);
+                ammeterSolarPanel = new ACS712(ACS712.Method.CHAUVENET, ACS712.Sample.ONEHUNDRED, analogInputAmmeterSP, 2.5, 3.3, 0, 0.540);
 
                 analogInputVoltmeterSP = ioio_.openAnalogInput(VOLTMETER_SP_PIN);
                 analogInputVoltmeterSP.setBuffer(BUFFER_SIZE);
-                voltmeterSolarPanel = new IOIO_VMeter(IOIO_VMeter.Method.CHAUVENET, IOIO_VMeter.Sample.ONETHOUSAND, analogInputVoltmeterSP, 0, 3.29, 0, 10.0);
+                voltmeterSolarPanel = new IOIOVoltmeter(IOIOVoltmeter.Method.CHAUVENET, IOIOVoltmeter.Sample.ONEHUNDRED, analogInputVoltmeterSP, 0, 3.29, 0, 10.0);
 
                 analogInputAmmeterBA = ioio_.openAnalogInput(AMMETER_BA_PIN);
                 analogInputAmmeterBA.setBuffer(BUFFER_SIZE);
-                ammeterBattery = new ACS712(ACS712.Method.CHAUVENET, ACS712.Sample.ONETHOUSAND, analogInputAmmeterBA, 2.5, 3.3, 0, 0.5);
+                ammeterBattery = new ACS712(ACS712.Method.CHAUVENET, ACS712.Sample.ONEHUNDRED, analogInputAmmeterBA, 2.5, 3.3, 0, 0.5);
 
                 analogInputVoltmeterBA = ioio_.openAnalogInput(VOLTMETER_BA_PIN);
                 analogInputVoltmeterBA.setBuffer(BUFFER_SIZE);
-                voltmeterBattery = new IOIO_VMeter(IOIO_VMeter.Method.CHAUVENET, IOIO_VMeter.Sample.ONETHOUSAND, analogInputVoltmeterBA, 0, 3.27, 0, 5.0);
+                voltmeterBattery = new IOIOVoltmeter(IOIOVoltmeter.Method.CHAUVENET, IOIOVoltmeter.Sample.ONEHUNDRED, analogInputVoltmeterBA, 0, 3.27, 0, 5.0);
 
                 analogInputVoltmeterUV = ioio_.openAnalogInput(VOLTMETER_UV_PIN);
                 analogInputVoltmeterUV.setBuffer(BUFFER_SIZE);
-                uvaSensor = new GUVA_S12SD(GUVA_S12SD.Method.CHAUVENET, GUVA_S12SD.Sample.ONETHOUSAND, analogInputVoltmeterUV, 0, 3.23, 0, 6.8);
+                uvaSensor = new GUVA_S12SD(GUVA_S12SD.Method.CHAUVENET, GUVA_S12SD.Sample.ONEHUNDRED, analogInputVoltmeterUV, 0, 3.23, 0, 6.8);
 
                 panPwmOutput = ioio_.openPwmOutput(new DigitalOutput.Spec(SERVO_PAN_PIN, DigitalOutput.Spec.Mode.OPEN_DRAIN), SERVO_PWM_FREQUENCY);
                 servoPan = new Pan(panPwmOutput);
@@ -140,14 +132,14 @@ public final class Tracker extends IOIOConsoleApp {
                 servoTilt = new Tilt(tiltPwmOutput);
                 servoTilt.write(0);
 
-                Thread.sleep(30_000);
-                System.out.println("ZoneDateTime\t\t\t\t\t\t\t\t\tT.(°C)\tP.(atm)\t\tZenith°\tEleva.°\tAzimuth°\tInput(W)\tOutput(W)\tUVIndex\t\tUVAPower (W/m2)");
+                location = new Location(LONGITUDE, LATITUDE);
+
+                //Thread.sleep(30_000);
+                System.out.println("ZoneDateTime\t\t\t\t\t\t\t\t\tT.(°C)\tP.(atm)\t\tZenith°\tAzimuth°\tInput(W)\tOutput(W)\tUVIndex\t\tUVAPower (W/m2)");
             }
             @Override
             public void loop() throws ConnectionLostException, InterruptedException {
                 led_.write(ledOn_);
-
-                zonedDateTime = ZonedDateTime.now();
 
                 temperature = pressureTemperatureSensor.getTemperature();
                 relativePressure = pressureTemperatureSensor.mbToAtm(pressureTemperatureSensor.seaLevel(pressureTemperatureSensor.getPressure(temperature, BMP180.Oversampling.HIGH_RES), ALTITUDE));
@@ -163,35 +155,45 @@ public final class Tracker extends IOIOConsoleApp {
                 uvIndex = uvaSensor.getUVIndex();
                 uvaPower = uvaSensor.getUVAPower(uvIndex);
 
-                sunPosition = new SunPosition(new ObservationPoint(new Time(zonedDateTime), new Location(LONGITUDE, LATITUDE), new Weather(temperature,relativePressure)));
+                time = new Time(ZonedDateTime.now());
+                time.computeTime();
+
+                sunPosition = new SunPosition(new ObservationPoint(time, location, new Weather(temperature,relativePressure)));
+                sunPosition.computePosition();
 
                 zenith = toDegrees(sunPosition.getZenith());
                 azimuth = toDegrees(sunPosition.getAzimuth());
-                elevation = toDegrees(sunPosition.getElevationAngle());
 
-                if (zenith >= 0 && zenith <= 90) {
-                    servoTilt.write((int) zenith);
-                    servoPan.write((int) azimuth);
-                    ledOn_ = false;
-                } else {
-                    servoTilt.write(90);
-                    servoPan.write(-90);
-                    ledOn_ = true;
-                }
+                servoTilt.write((int)zenith);
+                servoPan.write((int)azimuth);
 
-                System.out.print(zonedDateTime.withZoneSameInstant(ZoneId.systemDefault()) + "\t");
-                System.out.print(Math.round(temperature * 100.0) / 100.0 + "\t");
-                System.out.print(Math.round(relativePressure * 100.0) / 100.0 + "\t\t\t");
-                System.out.print(zenith + "\t");
-                System.out.print(elevation + "\t");
-                System.out.print(azimuth + "\t\t");
-                System.out.print(powerSolarPanel + "\t\t");
-                System.out.print(powerBattery + "\t\t");
-                System.out.print(Math.round(uvIndex * 100.0) / 100.0 + "\t\t\t");
-                System.out.print(Math.round(uvaPower * 10 * 100.0) / 100.0);
-                System.out.println();
+                ledOn_ = false;
+
+                print();
+
                 Thread.sleep(1000);
             }
         };
+    }
+
+    private void print(){
+        System.out.print(time.getZonedDateTime().withZoneSameInstant(ZoneId.systemDefault()) + "\t");
+        System.out.print(round(temperature)+"\t");
+        System.out.print(round(relativePressure)+"\t\t\t");
+        System.out.print(zenith+"\t");
+        System.out.print(azimuth+"\t\t");
+        System.out.print(powerSolarPanel+"\t\t");
+        System.out.print(powerBattery+"\t\t");
+        System.out.print(round(uvIndex)+"\t\t\t");
+        System.out.print(round(uvaPower*10)); //(mW/cm2)--(*10)-->(W/m2)
+        System.out.println();
+    }
+
+    private static double round(double value){
+     return Math.round(value*100.0)/100.0;
+    }
+
+    private static double toDegrees(double angle){
+        return round(Math.toDegrees(angle));
     }
 }
