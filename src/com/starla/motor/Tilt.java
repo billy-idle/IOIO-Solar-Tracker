@@ -8,10 +8,10 @@ import ioio.lib.api.exception.ConnectionLostException;
  * Describes the zenith Ζ (Zíta) angle within the range 90°(Horizon) and 0°(around midday) for solar energy applications.
  * <p>
  * <a href="http://www.dfrobot.com/index.php?route=product/product&filter_name=fit0045&product_id=146#.UdyLhth2EUW">
- *     DF05BB Tilt/Pan Kit (5kg)</a>
+ * DF05BB Tilt/Pan Kit (5kg)</a>
  *
- * @version 1, 18/04/2015
  * @author Guillermo Guzm&aacute;n S&aacute;nchez
+ * @version 1, 18/04/2015
  */
 public final class Tilt extends Servomotor {
 
@@ -21,7 +21,6 @@ public final class Tilt extends Servomotor {
     private static final int MAX_ANGLE = 90;
 
     /**
-     *
      * @param pwmOutput Contains the information about the frequency, operating mode and the number of the pin.
      * @see PwmOutput
      */
@@ -30,7 +29,6 @@ public final class Tilt extends Servomotor {
     }
 
     /**
-     *
      * @param angle The angle in degrees, between 0° and 90°.
      * @throws ConnectionLostException
      */

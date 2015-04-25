@@ -6,15 +6,14 @@ import ioio.lib.api.exception.ConnectionLostException;
 /**
  * This class allows an IOIO board to control RC servo motors.
  *
- * @version 1, 18/04/2015
  * @author Guillermo Guzm&aacute;n S&aacute;nchez
+ * @version 1, 18/04/2015
  */
 class Servomotor {
 
     final PwmOutput pwmOutput;
 
     /**
-     *
      * @param pwmOutput Contains the information about the frequency, operating mode and the number of the pin.
      * @see PwmOutput
      */
@@ -40,11 +39,11 @@ class Servomotor {
     /**
      * Re-maps a number from one range to another. Does not constrain values to within the range.
      *
-     * @param value The number to map.
-     * @param fromLow The lower bound of the value's current range.
+     * @param value    The number to map.
+     * @param fromLow  The lower bound of the value's current range.
      * @param fromHigh The upper bound of the value's current range.
-     * @param toLow  The lower bound of the value's target range.
-     * @param toHigh The upper bound of the value's target range.
+     * @param toLow    The lower bound of the value's target range.
+     * @param toHigh   The upper bound of the value's target range.
      * @return The mapped value.
      */
     int map(int value, int fromLow, int fromHigh, int toLow, int toHigh) {
@@ -55,12 +54,12 @@ class Servomotor {
      * Constrains a number to be within the range.
      *
      * @param value The number to constrain.
-     * @param low The lower end of the range.
-     * @param high The upper end of the range.
+     * @param low   The lower end of the range.
+     * @param high  The upper end of the range.
      * @return value, if value is between low and high; low, if value is less than low; high, if value is greater than high.
      */
-    int constraint(int value, int low, int high){
-        return  (value < low) ? low :((value > high) ? high : value);
+    int constraint(int value, int low, int high) {
+        return (value < low) ? low : ((value > high) ? high : value);
     }
 
 }

@@ -189,7 +189,7 @@ public class IOIOVoltmeter {
         private final double coefficient;
 
         /**
-         * @param value The amount of samples.
+         * @param value       The amount of samples.
          * @param coefficient The Chauvenet's coefficient.
          */
         Sample(int value, double coefficient) {

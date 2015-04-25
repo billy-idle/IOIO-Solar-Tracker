@@ -1,13 +1,13 @@
 package com.starla.sensor.uv;
 
-import com.starla.sensor.voltmeter.IOIOVoltmeter;
-import ioio.lib.api.AnalogInput;
-import ioio.lib.api.exception.ConnectionLostException;
+        import com.starla.sensor.voltmeter.IOIOVoltmeter;
+        import ioio.lib.api.AnalogInput;
+        import ioio.lib.api.exception.ConnectionLostException;
 
 /**
  * This class allows a IOIO board to read the voltage from an GUVA_S12SD, process it and get the uv-index and the
  * uv-a power.
- *
+ * <p>
  * <a href="http://www.adafruit.com/products/1918">ANALOG UV LIGHT SENSOR BREAKOUT - GUVA-S12SD</a>
  *
  * @author Guillermo Guzm&aacute;n S&aacute;nchez
@@ -34,7 +34,6 @@ public final class GUVA_S12SD extends IOIOVoltmeter {
     }
 
     /**
-     *
      * @return The UV Index
      * @throws ConnectionLostException
      * @throws InterruptedException
@@ -45,7 +44,6 @@ public final class GUVA_S12SD extends IOIOVoltmeter {
     }
 
     /**
-     *
      * @param uvIndex UV Index
      * @return UV-A Power (mW/m2)
      */

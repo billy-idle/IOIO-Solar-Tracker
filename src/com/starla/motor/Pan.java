@@ -11,10 +11,10 @@ import ioio.lib.api.exception.ConnectionLostException;
  * Valid during the winter solstice and the equinox.
  * <p>
  * <a href="http://www.dfrobot.com/index.php?route=product/product&filter_name=fit0045&product_id=146#.UdyLhth2EUW">
- *     DF05BB Tilt/Pan Kit (5kg)</a>
+ * DF05BB Tilt/Pan Kit (5kg)</a>
  *
- * @version 1, 18/04/2015
  * @author Guillermo Guzm&aacute;n S&aacute;nchez
+ * @version 1, 18/04/2015
  */
 public final class Pan extends Servomotor {
 
@@ -24,7 +24,6 @@ public final class Pan extends Servomotor {
     private static final int MAX_ANGLE = 90;
 
     /**
-     *
      * @param pwmOutput Contains the information about the frequency, operating mode and the pin number.
      * @see PwmOutput
      */

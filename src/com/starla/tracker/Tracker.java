@@ -18,8 +18,8 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 /**
- * @version 1, 17/04/2015
  * @author Guillermo Guzm&aacute;n S&aacute;nchez
+ * @version 1, 17/04/2015
  */
 public final class Tracker extends IOIOConsoleApp {
     // parameters related with the bmp_180 (pressure and temperature) sensor
@@ -137,6 +137,7 @@ public final class Tracker extends IOIOConsoleApp {
                 //Thread.sleep(30_000);
                 System.out.println("ZoneDateTime\t\t\t\t\t\t\t\t\tT.(°C)\tP.(atm)\t\tZenith°\tAzimuth°\tInput(W)\tOutput(W)\tUVIndex\t\tUVAPower (W/m2)");
             }
+
             @Override
             public void loop() throws ConnectionLostException, InterruptedException {
                 led_.write(ledOn_);
@@ -158,14 +159,14 @@ public final class Tracker extends IOIOConsoleApp {
                 time = new Time(ZonedDateTime.now());
                 time.computeTime();
 
-                sunPosition = new SunPosition(new ObservationPoint(time, location, new Weather(temperature,relativePressure)));
+                sunPosition = new SunPosition(new ObservationPoint(time, location, new Weather(temperature, relativePressure)));
                 sunPosition.computePosition();
 
                 zenith = toDegrees(sunPosition.getZenith());
                 azimuth = toDegrees(sunPosition.getAzimuth());
 
-                servoTilt.write((int)zenith);
-                servoPan.write((int)azimuth);
+                servoTilt.write((int) zenith);
+                servoPan.write((int) azimuth);
 
                 ledOn_ = false;
 
@@ -176,24 +177,24 @@ public final class Tracker extends IOIOConsoleApp {
         };
     }
 
-    private void print(){
+    private void print() {
         System.out.print(time.getZonedDateTime().withZoneSameInstant(ZoneId.systemDefault()) + "\t");
-        System.out.print(round(temperature)+"\t");
-        System.out.print(round(relativePressure)+"\t\t\t");
-        System.out.print(zenith+"\t");
-        System.out.print(azimuth+"\t\t");
-        System.out.print(powerSolarPanel+"\t\t");
-        System.out.print(powerBattery+"\t\t");
-        System.out.print(round(uvIndex)+"\t\t\t");
-        System.out.print(round(uvaPower*10)); //(mW/cm2)--(*10)-->(W/m2)
+        System.out.print(round(temperature) + "\t");
+        System.out.print(round(relativePressure) + "\t\t\t");
+        System.out.print(zenith + "\t");
+        System.out.print(azimuth + "\t\t");
+        System.out.print(powerSolarPanel + "\t\t");
+        System.out.print(powerBattery + "\t\t");
+        System.out.print(round(uvIndex) + "\t\t\t");
+        System.out.print(round(uvaPower * 10)); //(mW/cm2)--(*10)-->(W/m2)
         System.out.println();
     }
 
-    private static double round(double value){
-     return Math.round(value*100.0)/100.0;
+    private static double round(double value) {
+        return Math.round(value * 100.0) / 100.0;
     }
 
-    private static double toDegrees(double angle){
+    private static double toDegrees(double angle) {
         return round(Math.toDegrees(angle));
     }
 }
