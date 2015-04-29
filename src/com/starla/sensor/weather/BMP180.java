@@ -141,7 +141,7 @@ public final class BMP180 {
         p2 = 3038.0 * 100.0 * Math.pow(2, -36);
 
 		/*
-		System.out.println("");
+        System.out.println("");
 		System.out.println("c3 = " + c3);
 		System.out.println("c4 = " + c4);
 		System.out.println("c5 = " + c5);

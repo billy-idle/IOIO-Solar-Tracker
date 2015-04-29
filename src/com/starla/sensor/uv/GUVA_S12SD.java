@@ -1,8 +1,8 @@
 package com.starla.sensor.uv;
 
-        import com.starla.sensor.voltmeter.IOIOVoltmeter;
-        import ioio.lib.api.AnalogInput;
-        import ioio.lib.api.exception.ConnectionLostException;
+import com.starla.sensor.voltmeter.IOIOVoltmeter;
+import ioio.lib.api.AnalogInput;
+import ioio.lib.api.exception.ConnectionLostException;
 
 /**
  * This class allows a IOIO board to read the voltage from an GUVA_S12SD, process it and get the uv-index and the

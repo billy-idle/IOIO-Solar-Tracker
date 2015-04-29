@@ -4,9 +4,9 @@
     <root id="archive" name="IOIO-Solar-Tracker.jar">
       <element id="module-output" name="IOIO-Solar-Tracker" />
       <element id="module-output" name="IOIOLibPC" />
-      <element id="module-output" name="Sun-Position-Algorithm" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/App-IOIO0504/IOIOLib/target/pc/lib/purejavacomm-0.0.21.jar" path-in-jar="/" />
+      <element id="module-output" name="Sun_Position_Algorithm" />
       <element id="extracted-dir" path="$PROJECT_DIR$/App-IOIO0504/IOIOLib/target/pc/lib/jna-4.0.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/App-IOIO0504/IOIOLib/target/pc/lib/purejavacomm-0.0.21.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

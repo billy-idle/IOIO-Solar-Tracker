@@ -3,6 +3,9 @@ package com.starla.sensor.voltmeter;
 import ioio.lib.api.AnalogInput;
 import ioio.lib.api.exception.ConnectionLostException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * This class allows a IOIO board behaves like a voltmeter.
  *
@@ -68,18 +71,15 @@ public class IOIOVoltmeter {
      */
     private double averageMethod(Sample sample) throws ConnectionLostException, InterruptedException {
         double total = 0;
+        int size = sample.getSample();
         double volts;
         double value;
 
-        for (int i = 0; i < sample.getSample(); i++) {
+        for (int i = 0; i < size; i++) {
             total += analogInput.getVoltageBuffered(); // Read analog input _pin
         }
 
-        if (total == 0) {
-            return 0;
-        }
-
-        volts = total / sample.getSample(); // Compute the average sample
+        volts = total / size; // Compute the average sample
         value = map(volts, fromLow, fromHigh, toLow, toHigh); // For example: Scales volts from 2400mV-5000mV to amperes 0mA-500mA
 
         return value;
@@ -95,47 +95,39 @@ public class IOIOVoltmeter {
      * @see IOIOVoltmeter.Sample
      */
     private double chauvenetMethod(Sample sample) throws ConnectionLostException, InterruptedException {
-        double total = 0.0;
-        double value;
-        double[] storage = new double[sample.getSample()];
-        double reading;
-        double average;
-        double stdDeviation;
-        double ks;
-        double Exi2 = 0.0;
+        int size = sample.getSample();
+        double coefficient = sample.getCoefficient();
+        List<Double> storage = new ArrayList<>(size);
 
-        for (int i = 0; i < sample.getSample(); i++) {
-            reading = analogInput.getVoltageBuffered(); // Read analog input pin.
-            total += reading; // Add the reading to the total.
-            Exi2 += Math.pow(reading, 2); // Compute Exi2 (E -> Summation)
-            storage[i] = reading; // Stores the reading.
+        for (int i = 0; i < size; i++) {
+            storage.add((double) analogInput.getVoltageBuffered()); // Reads analog input pin and stores the reading.
         }
 
-        if (total == 0.0) {
-            return 0.0;
-        }
+        double total = storage.
+                parallelStream().
+                reduce(0.0, Double::sum); // Adds all the elements.
 
-        average = total / sample.getSample(); // Compute the average value.
-        stdDeviation = Math.sqrt(Exi2 / sample.getSample() - Math.pow(average, 2)); // Compute the standard deviation.
-        ks = sample.getCoefficient() * stdDeviation; // compute ks
-        total = 0.0;
-        int counter = 0;
+        double Exi2 = storage.
+                parallelStream().
+                reduce(0.0, (x, y) -> (x + (y * y))); // Computes Exi2 (E -> Summation)
 
-        for (int i = 0; i < sample.getSample(); i++) {
-            if ((storage[i] - average) < ks) {
-                total += storage[i];
-                counter++;
-            }
-        }
+        final double average = total / size; // Computes the average value.
+        double stdDeviation = Math.sqrt(Exi2 / size - Math.pow(average, 2)); // Computes the standard deviation.
+        double ks = coefficient * stdDeviation; // computes ks
 
-        if (total == 0) {
-            return 0;
-        }
+        long count = storage.
+                parallelStream().
+                filter(r -> ((r - average) < ks)).
+                count(); // Returns the count of elements.
 
-        average = total / counter;
-        value = map(average, fromLow, fromHigh, toLow, toHigh); // For example: Scales volts from 2400mV-5000mV to amperes 0mA-500mA
+        total = storage.
+                parallelStream().
+                filter(r -> ((r - average) < ks)).
+                reduce(0.0, Double::sum); // Adds all the elements.
 
-        return value;
+        double newAverage = total / count;
+        // For example: Scales volts from 2400mV-5000mV to amperes 0mA-500mA
+        return  map(constraint(newAverage, fromLow, fromHigh), fromLow, fromHigh, toLow, toHigh);
     }
 
     /**
@@ -150,6 +142,18 @@ public class IOIOVoltmeter {
      */
     private double map(double value, double fromLow, double fromHigh, double toLow, double toHigh) {
         return (value - fromLow) * (toHigh - toLow) / (fromHigh - fromLow) + toLow;
+    }
+
+    /**
+     * Constrains a number to be within the range.
+     *
+     * @param value The number to constrain.
+     * @param low   The lower end of the range.
+     * @param high  The upper end of the range.
+     * @return value, if value is between low and high; low, if value is less than low; high, if value is greater than high.
+     */
+    private double constraint(double value, double low, double high) {
+        return (value < low) ? low : ((value > high) ? high : value);
     }
 
     /**
