@@ -25,7 +25,8 @@ public class IOIOVoltmeter {
      * Class constructor.
      *
      * @param method      Enum type, average method or Chauvenet method.
-     * @param sample      Enum type. Allow values are TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, FIFTEEN, TWENTY,
+     * @param sample      Enum type. Allow values are TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, FIFTEEN,
+     *                    TWENTY,
      *                    TWENTYFIVE, THIRTY, FORTY, FIFTY, ONEHUNDRED, THREEHUNDRED, FIVEHUNDRED, ONETHOUSAND.
      * @param analogInput A pin use for analog input.
      * @param fromLow     The lower bound of the value's current range.
@@ -35,7 +36,8 @@ public class IOIOVoltmeter {
      * @see IOIOVoltmeter.Sample
      * @see AnalogInput
      */
-    public IOIOVoltmeter(Method method, Sample sample, AnalogInput analogInput, double fromLow, double fromHigh, double toLow, double toHigh) {
+    public IOIOVoltmeter(Method method, Sample sample, AnalogInput analogInput, double fromLow, double fromHigh,
+                         double toLow, double toHigh) {
         this.method = method;
         this.sample = sample;
         this.analogInput = analogInput;
@@ -78,9 +80,10 @@ public class IOIOVoltmeter {
         for (int i = 0; i < size; i++) {
             total += analogInput.getVoltageBuffered(); // Read analog input _pin
         }
-
-        volts = total / size; // Compute the average sample
-        value = map(volts, fromLow, fromHigh, toLow, toHigh); // For example: Scales volts from 2400mV-5000mV to amperes 0mA-500mA
+        // Compute the average sample
+        volts = total / size;
+        // For example: Scales volts from 2400mV-5000mV to amperes 0mA-500mA
+        value = map(volts, fromLow, fromHigh, toLow, toHigh);
 
         return value;
     }
@@ -127,7 +130,7 @@ public class IOIOVoltmeter {
 
         double newAverage = total / count;
         // For example: Scales volts from 2400mV-5000mV to amperes 0mA-500mA
-        return  map(constraint(newAverage, fromLow, fromHigh), fromLow, fromHigh, toLow, toHigh);
+        return map(constraint(newAverage, fromLow, fromHigh), fromLow, fromHigh, toLow, toHigh);
     }
 
     /**
@@ -150,7 +153,8 @@ public class IOIOVoltmeter {
      * @param value The number to constrain.
      * @param low   The lower end of the range.
      * @param high  The upper end of the range.
-     * @return value, if value is between low and high; low, if value is less than low; high, if value is greater than high.
+     * @return value, if value is between low and high; low, if value is less than low; high, if value is greater
+     * than high.
      */
     private double constraint(double value, double low, double high) {
         return (value < low) ? low : ((value > high) ? high : value);
@@ -166,7 +170,8 @@ public class IOIOVoltmeter {
     /**
      * This enum type represents the concepts illustrated in the document "Metrología estadística".
      *
-     * @see <a href="http://www.metrologiaindust.com.ar/Servicios/Capacitacion/Curso2/Material/Diapositivas/1-%20Metrologia%20Estadistica.pdf">Metrología estadística</a>
+     * @see <a href="http://www.metrologiaindust.com.ar/Servicios/Capacitacion/Curso2/Material/Diapositivas/
+     * 1-%20Metrologia%20Estadistica.pdf">Metrología estadística</a>
      */
     public enum Sample {
         TWO(2, 1.15),

@@ -33,7 +33,8 @@ class Servomotor {
         int maxPulseWidth = 2400;
         int minAngle = 0;
         int maxAngle = 180;
-        pwmOutput.setPulseWidth(map(constraint(angle, minAngle, maxAngle), minAngle, maxAngle, minPulseWidth, maxPulseWidth));
+        pwmOutput.setPulseWidth(map(constraint(angle, minAngle, maxAngle), minAngle, maxAngle, minPulseWidth,
+                maxPulseWidth));
     }
 
     /**
@@ -56,7 +57,8 @@ class Servomotor {
      * @param value The number to constrain.
      * @param low   The lower end of the range.
      * @param high  The upper end of the range.
-     * @return value, if value is between low and high; low, if value is less than low; high, if value is greater than high.
+     * @return value, if value is between low and high; low, if value is less than low; high, if value is greater
+     * than high.
      */
     int constraint(int value, int low, int high) {
         return (value < low) ? low : ((value > high) ? high : value);

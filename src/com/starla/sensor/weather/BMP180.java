@@ -167,7 +167,8 @@ public final class BMP180 {
      * @throws InterruptedException
      */
     private int startTemperature() throws ConnectionLostException, InterruptedException {
-        if (writeBytes(new byte[]{(byte) BMP180_REG_CONTROL, (byte) BMP180_COMMAND_TEMPERATURE})) { //write 0x2E int reg 0xF4
+        //write 0x2E int reg 0xF4
+        if (writeBytes(new byte[]{(byte) BMP180_REG_CONTROL, (byte) BMP180_COMMAND_TEMPERATURE})) {
             return 5;
         }
         return 0;
@@ -183,8 +184,8 @@ public final class BMP180 {
         int delay = startTemperature();
         assert delay > 0 : "start temperature measure fail";
         Thread.sleep(delay);
-
-        byte[] response = readBytes(new byte[]{(byte) BMP180_REG_RESULT, (byte) 0xF7}); // read reg 0xF6 (MSB), 0xF7 (LSB)
+        // read reg 0xF6 (MSB), 0xF7 (LSB)
+        byte[] response = readBytes(new byte[]{(byte) BMP180_REG_RESULT, (byte) 0xF7});
 
         tu = ((int) response[0] * 256) + (int) response[1];
         a = c5 * (tu - c6);
@@ -241,7 +242,8 @@ public final class BMP180 {
      * @throws ConnectionLostException
      * @throws InterruptedException
      */
-    public double getPressure(double temperature, Oversampling oversampling) throws ConnectionLostException, InterruptedException {
+    public double getPressure(double temperature, Oversampling oversampling) throws ConnectionLostException,
+            InterruptedException {
         double pu, s, x, y, z, pressure;
         int delay = startPressure(oversampling);
         assert delay > 0 : "start pressure measure fail";
@@ -249,7 +251,8 @@ public final class BMP180 {
 
         byte[] response = readBytes(new byte[]{(byte) BMP180_REG_RESULT, (byte) 0xF7, (byte) 0xF8});
 
-        pu = Byte.toUnsignedInt(response[0]) * 256.0 + Byte.toUnsignedInt(response[1]) + Byte.toUnsignedInt(response[2]) / 256.0;
+        pu = Byte.toUnsignedInt(response[0]) * 256.0 + Byte.toUnsignedInt(response[1]) +
+                Byte.toUnsignedInt(response[2]) / 256.0;
         s = temperature - 25.0;
         x = x2 * Math.pow(s, 2) + x1 * s + x0;
         y = y2 * Math.pow(s, 2) + y1 * s + y0;
@@ -311,7 +314,8 @@ public final class BMP180 {
         byte[] msb = new byte[1];
         byte[] lsb = new byte[1];
 
-        if (twi.writeRead(BMP180_ADDRESS, SEVEN_BIT_ADDRESS, new byte[]{request[0]}, 1, msb, 1) && twi.writeRead(BMP180_ADDRESS, SEVEN_BIT_ADDRESS, new byte[]{request[1]}, 1, lsb, 1)) {
+        if (twi.writeRead(BMP180_ADDRESS, SEVEN_BIT_ADDRESS, new byte[]{request[0]}, 1, msb, 1) &&
+                twi.writeRead(BMP180_ADDRESS, SEVEN_BIT_ADDRESS, new byte[]{request[1]}, 1, lsb, 1)) {
             return (((int) msb[0] << 8) + (int) lsb[0]);
         }
         return 0;
@@ -327,7 +331,8 @@ public final class BMP180 {
         byte[] msb = new byte[1];
         byte[] lsb = new byte[1];
 
-        if (twi.writeRead(BMP180_ADDRESS, SEVEN_BIT_ADDRESS, new byte[]{request[0]}, 1, msb, 1) && twi.writeRead(BMP180_ADDRESS, SEVEN_BIT_ADDRESS, new byte[]{request[1]}, 1, lsb, 1)) {
+        if (twi.writeRead(BMP180_ADDRESS, SEVEN_BIT_ADDRESS, new byte[]{request[0]}, 1, msb, 1) &&
+                twi.writeRead(BMP180_ADDRESS, SEVEN_BIT_ADDRESS, new byte[]{request[1]}, 1, lsb, 1)) {
             return ((Byte.toUnsignedInt(msb[0]) << 8) + Byte.toUnsignedInt(lsb[0]));
         }
         return 0;
@@ -356,7 +361,8 @@ public final class BMP180 {
         byte[] totalResponse = new byte[request.length];
 
         for (int i = 0; i < request.length; i++) {
-            if (twi.writeRead(BMP180_ADDRESS, SEVEN_BIT_ADDRESS, new byte[]{request[i]}, 1, singleResponse, 1)) { // because i'm reading, i must send the request one reg at a time.
+            // because i'm reading, i must send the request one reg at a time.
+            if (twi.writeRead(BMP180_ADDRESS, SEVEN_BIT_ADDRESS, new byte[]{request[i]}, 1, singleResponse, 1)) {
                 totalResponse[i] = (byte) Byte.toUnsignedInt(singleResponse[0]);
             }
         }

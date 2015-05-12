@@ -34,7 +34,8 @@ public final class Tilt extends Servomotor {
      */
     public void write(int angle) throws ConnectionLostException {
         assert angle >= 0 && angle <= 90 : "Tilt angle is out of range";
-        pwmOutput.setPulseWidth(map(constraint(angle, MIN_ANGLE, MAX_ANGLE), MIN_ANGLE, MAX_ANGLE, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH));
+        pwmOutput.setPulseWidth(map(constraint(angle, MIN_ANGLE, MAX_ANGLE), MIN_ANGLE, MAX_ANGLE, MIN_PULSE_WIDTH,
+                MAX_PULSE_WIDTH));
     }
 
 }

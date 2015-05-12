@@ -19,7 +19,8 @@ public final class GUVA_S12SD extends IOIOVoltmeter {
      * Class constructor.
      *
      * @param method      Enum type, average method or Chauvenet method.
-     * @param sample      Enum type. Allow values are TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, FIFTEEN, TWENTY,
+     * @param sample      Enum type. Allow values are TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, FIFTEEN,
+     *                    TWENTY,
      *                    TWENTYFIVE, THIRTY, FORTY, FIFTY, ONEHUNDRED, THREEHUNDRED, FIVEHUNDRED, ONETHOUSAND.
      * @param analogInput A pin use for analog input.
      * @param fromLow     The lower bound of the value's current range.
@@ -29,7 +30,8 @@ public final class GUVA_S12SD extends IOIOVoltmeter {
      * @see IOIOVoltmeter.Sample
      * @see AnalogInput
      */
-    public GUVA_S12SD(Method method, Sample sample, AnalogInput analogInput, double fromLow, double fromHigh, double toLow, double toHigh) {
+    public GUVA_S12SD(Method method, Sample sample, AnalogInput analogInput, double fromLow, double fromHigh,
+                      double toLow, double toHigh) {
         super(method, sample, analogInput, fromLow, fromHigh, toLow, toHigh);
     }
 
