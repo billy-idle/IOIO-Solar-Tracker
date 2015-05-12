@@ -1,2 +1,2 @@
-# IOIO-Solar-Tracker
-A Solar tracker using IOIO.
+# IOIO Solar Tracker
+A Solar tracker using IOIO OTG.
