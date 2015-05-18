@@ -6,7 +6,7 @@ import com.starla.sensor.ammeter.ACS712;
 import com.starla.sensor.uv.GUVA_S12SD;
 import com.starla.sensor.voltmeter.IOIOVoltmeter;
 import com.starla.sensor.weather.BMP180;
-import com.starla.sunposition.*;
+import com.starla.position.*;
 import ioio.lib.api.*;
 import ioio.lib.api.exception.ConnectionLostException;
 import ioio.lib.util.BaseIOIOLooper;
@@ -27,7 +27,7 @@ public final class Tracker extends IOIOConsoleApp {
     // parameters related with the acs712 sensor (ammeter)
     private final int AMMETER_SP_PIN = 31;
     private final int AMMETER_BA_PIN = 42;
-    // parameters related with the IOIO-based voltmeterSolarPanel
+    // parameters related with the IOIO-based voltmeter
     private final int VOLTMETER_SP_PIN = 33;
     private final int VOLTMETER_BA_PIN = 38;
     private final int VOLTMETER_UV_PIN = 34; // GUVA_S12SD Sensor
@@ -141,7 +141,7 @@ public final class Tracker extends IOIOConsoleApp {
 
                 location = new Location(LONGITUDE, LATITUDE);
 
-                //Thread.sleep(30_000);
+                Thread.sleep(30_000); //Used to orient it towards the geographic south
                 System.out.println("ZoneDateTime\t\t\t\t\t\t\t\t\tT.(°C)\tP.(atm)\t\tZenith°\tAzimuth°" +
                         "\tInput(W)\tOutput(W)\tUVIndex\t\tUVAPower (W/m2)");
             }
@@ -157,11 +157,11 @@ public final class Tracker extends IOIOConsoleApp {
 
                 currentSolarPanel = ammeterSolarPanel.getVolts(); // -0.05 ajuste práctico
                 voltageSolarPanel = voltmeterSolarPanel.getVolts(); // +0.5 ajuste práctico;
-                powerSolarPanel = Math.round((currentSolarPanel * voltageSolarPanel) * 100.0) / 100.0;
+                powerSolarPanel = currentSolarPanel * voltageSolarPanel;
 
                 currentBattery = ammeterBattery.getVolts(); // -0.05 ajuste práctico;
                 voltageBattery = voltmeterBattery.getVolts();
-                powerBattery = Math.round((currentBattery * voltageBattery) * 100.0) / 100.0;
+                powerBattery = currentBattery * voltageBattery;
 
                 uvIndex = uvaSensor.getUVIndex();
                 uvaPower = uvaSensor.getUVAPower(uvIndex);
@@ -194,8 +194,8 @@ public final class Tracker extends IOIOConsoleApp {
         System.out.print(round(relativePressure) + "\t\t\t");
         System.out.print(zenith + "\t");
         System.out.print(azimuth + "\t\t");
-        System.out.print(powerSolarPanel + "\t\t");
-        System.out.print(powerBattery + "\t\t");
+        System.out.print(round(powerSolarPanel) + "\t\t");
+        System.out.print(round(powerBattery) + "\t\t");
         System.out.print(round(uvIndex) + "\t\t\t");
         System.out.print(round(uvaPower * 10)); //(mW/cm2)--(*10)-->(W/m2)
         System.out.println();
